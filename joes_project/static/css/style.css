@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;700&display=swap');
+
+html {
+  font-size: 14px;
+}
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+a {
+  text-decoration: none;
+}
+
+.carousel-item img {
+  object-fit: cover;
+  object-position: top;
+  height: 60vh;
+  overflow: hidden;
+}
+
+.old_price {
+  font-weight: bold;
+  color: red;
+
+}
+
+.new_price {
+  font-weight: bold;
+  background-color: green;
+  color: white;
+  padding: 2px;
+  border-radius: 5px;
+  margin-bottom: 2px;
+}
+
+.pic-box {
+  position: relative;
+}
+
+.hot {
+  background-color: orangered;
+  color: white;
+  width: 50px;
+  text-align: center;
+  font-weight: bold;
+  display: inline;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
+  top: 0;
+  right: 20px;
+  z-index: 10;
+}
+
+.navbar-brand{
+  color:aliceblue;
+  transition: 0.3s;
+   font-family: "Gravitas One", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.navbar-brand:hover{
+  color: cyan;
+  text-shadow: 0 0 8px cyan;
+}
+
+.shop-logo{
+    color: aliceblue;
+    transition: 0.3s;
+      font-family: "Gravitas One", serif;
+  font-weight: 400;
+  font-style: normal;
+   font-size: 28px;
+}
+
+.shop-logo:hover{
+    color: cyan;
+    text-shadow: 0 0 8px cyan;
+}
+
+.nav-link{
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: aliceblue !important;
+    transition: 0.3s;
+    
+}
+
+.nav-link:hover{
+    color: cyan !important;
+    text-shadow: 0 0 8px cyan;
+    transform: scale(1.05);
+}
+
+.fa-facebook{
+    color:#1877F2;
+}
+
+.fa-twitter{
+    color:#1DA1F2;
+}
+
+.fa-google{
+    color:#DB4437;
+}
+
+.fa-instagram{
+    color:#E4405F;
+}
+
+.fa-linkedin{
+    color:#0A66C2;
+}
+
+.fa-github{
+    color:#ffffff;
+}
+
+.fa{
+    transition:0.3s;
+}
+
+.fa:hover{
+    transform: scale(1.2);
+}
