@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "joes_project.joes_project.asgi:application"
