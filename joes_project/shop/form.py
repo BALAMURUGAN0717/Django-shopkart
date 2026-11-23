@@ -52,6 +52,9 @@ class CustomUserForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+    def validate_password_for_user(self, user, password_field_name="password1"):
+        return super().validate_password_for_user(user, password_field_name="password1")
+
     def clean_username(self):
         username = self.cleaned_data.get('username', '').strip()
         if not username:
