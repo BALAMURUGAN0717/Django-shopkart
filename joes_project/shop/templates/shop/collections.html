@@ -1,45 +1,51 @@
 {% extends 'shop/layouts/main.html' %}
 {% block title %}
-  Registration | ShopKart
+  Collections | ShopKart
 {% endblock title %}
 {% block content %}
-  <section class="py-5 text-center container"  style="margin-top:70px;">
-    <div class="row py-lg-5">
-      <div class="col-lg-6 col-md-8 mx-auto">
-        <h1 class="fw-light">Bestsellers</h1>
-        <p class="lead text-muted">Our most popular products based on sales. Updated hourly.</p>
-        <p>
-          <a href="{% url 'login' %}" class="btn btn-primary my-2">Already User</a>
-          <a href="{% url 'register' %}" class="btn btn-secondary my-2">Register</a>
-        </p>
+  <section class="py-4 py-md-5 text-center container">
+    <div class="row py-2 py-md-4">
+      <div class="col-12 col-md-8 col-lg-6 mx-auto">
+        <h1 class="fw-light fs-2 fs-md-1">Bestsellers</h1>
+        <p class="lead text-muted fs-6 fs-md-5">Our most popular products based on sales. Updated hourly.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          {% if not request.user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Already User</a>
+            <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </section>
-  <section class="bg-light py-4 my-5" style="min-height:600px;">
+
+  <section class="bg-light py-4" style="min-height:500px;">
     <div class="container">
       <div class="row">
         <div class="col-12">
-          <h4 class="mb-3">Categories</h4>
+          <h4 class="mb-3 section-title">Categories</h4>
           <hr style="border-color:#b8bfc2;">
           {% include 'shop/inc/message.html' %}
         </div>
         {% for item in catagory %}
-        <div class="col-md-4 col-lg-3">
-          <div class="card my-3">
-            <img src="{{item.image.url}}"  class="card-image-top" alt="Categories">
-            <a href="{% url 'collections' item.name %}">
-            <div class="card-body">
-              <h5 class="card-title text-primary">{{ item.name }}</h5>
-              <p class="card-text">{{ item.description }}</p>
-    
+        <div class="col-6 col-md-4 col-lg-3 mb-4">
+          <div class="card h-100 product-card shadow-sm">
+            <div class="card-img-wrapper">
+              <img src="{{item.image.url}}" class="card-image-top" alt="{{item.name}}">
             </div>
-          </a>
+            <a href="{% url 'collections' item.name %}" class="text-decoration-none">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-primary">{{ item.name }}</h5>
+                <p class="card-text text-muted small category-desc">{{ item.description }}</p>
+              </div>
+            </a>
           </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+          <h5 class="text-muted">No categories found</h5>
+        </div>
         {% endfor %}
-
       </div>
-      </div>
+    </div>
   </section>
-
 {% endblock content %}
