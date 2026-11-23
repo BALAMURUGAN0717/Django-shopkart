@@ -1,2 +1,13 @@
+[project]
+name = "joes-project"
+version = "0.1.0"
+description = "Shopkart Django Project"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=4.0,<6.2",
+    "pillow",
+    "whitenoise",
+]
+
 [tool.vercel]
 entrypoint = "joes_project.wsgi:application"
