@@ -1,38 +1,77 @@
 {% load static %}
 <style>
   .hero-carousel-wrapper {
-    background-color: #0f1113;
     width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
+    position: relative;
+    background-color: transparent;
   }
   .hero-carousel-wrapper .carousel {
-    max-width: 1440px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
     position: relative;
-    background-color: #0f1113;
+    overflow: hidden;
   }
   .hero-carousel-wrapper .carousel-inner {
     width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
   }
   .hero-carousel-wrapper .carousel-item {
-    background-color: #0f1113;
-    text-align: center;
+    width: 100%;
+    background-color: transparent;
   }
   .hero-carousel-wrapper .carousel-item img {
     width: 100%;
     height: auto;
-    aspect-ratio: 2 / 1;
-    max-height: 540px;
-    object-fit: contain;
+    aspect-ratio: 1774 / 887;
+    object-fit: cover;
     object-position: center;
-    margin: 0 auto;
     display: block;
   }
-  @media (max-width: 767.98px) {
-    .hero-carousel-wrapper .carousel-item img {
-      aspect-ratio: 2 / 1;
-      max-height: none;
-      object-fit: contain;
+  .hero-carousel-wrapper .carousel-control-prev,
+  .hero-carousel-wrapper .carousel-control-next {
+    width: 44px;
+    height: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0.85;
+    transition: all 0.25s ease;
+    margin: 0 16px;
+    z-index: 10;
+  }
+  .hero-carousel-wrapper .carousel-control-prev:hover,
+  .hero-carousel-wrapper .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.08);
+  }
+  .hero-carousel-wrapper .carousel-control-prev-icon,
+  .hero-carousel-wrapper .carousel-control-next-icon {
+    width: 18px;
+    height: 18px;
+  }
+  @media (max-width: 575.98px) {
+    .hero-carousel-wrapper .carousel-control-prev,
+    .hero-carousel-wrapper .carousel-control-next {
+      width: 32px;
+      height: 32px;
+      margin: 0 8px;
+    }
+    .hero-carousel-wrapper .carousel-control-prev-icon,
+    .hero-carousel-wrapper .carousel-control-next-icon {
+      width: 14px;
+      height: 14px;
     }
   }
 </style>
@@ -59,11 +98,11 @@
         <img src="{% static 'images/fav4.jpg' %}" class="d-block w-100" alt="Home Essentials & Fashion Deals">
       </div>
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
       <span class="visually-hidden">Previous</span>
     </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next">
       <span class="carousel-control-next-icon" aria-hidden="true"></span>
       <span class="visually-hidden">Next</span>
     </button>
