@@ -5,7 +5,7 @@
 {% block content %}
   <div class="container py-4 my-2" style="min-height:500px;">
     <div class="row justify-content-center">
-      <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
         <div class="card shadow-sm border-0 p-3 p-md-4 my-3 auth-card">
           <div class="card-body">
             <h4 class="mb-3 text-center section-title">User Login</h4>
@@ -13,24 +13,30 @@
             {% include 'shop/inc/message.html' %}
             <form method="post" action="">
               {% csrf_token %}
+              {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+              {% endif %}
               <div class="mb-3">
                 <label for="username" class="form-label fw-bold small">User Name</label>
                 <div class="input-group">
                   <span class="input-group-text"><i class="fa fa-user"></i></span>
-                  <input type="text" name="username" id="username" class="form-control" placeholder="Enter User Name" required>
+                  <input type="text" name="username" id="username" class="form-control" placeholder="Enter User Name" value="{{ username|default:'' }}" required autocomplete="username">
                 </div>
               </div>
               <div class="mb-4">
-                <label for="password" class="form-label fw-bold small">Password</label>
+                <label for="login_password" class="form-label fw-bold small">Password</label>
                 <div class="input-group">
                   <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                  <input type="password" name="password" id="password" class="form-control" placeholder="Enter Password" required>
+                  <input type="password" name="password" id="login_password" class="form-control" placeholder="Enter Password" required autocomplete="current-password">
+                  <button class="btn btn-outline-secondary btn-toggle-pw" type="button" data-target="login_password" title="Show or hide password">
+                    <i class="fa fa-eye"></i>
+                  </button>
                 </div>
               </div>
               <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
             </form>
             <p class="text-center mt-3 mb-0 text-muted small">
-              New user? <a href="{% url 'register' %}" class="fw-bold">Register Now</a>
+              New user? <a href="{% url 'register' %}" class="fw-bold text-primary">Register Now</a>
             </p>
           </div>
         </div>
@@ -38,3 +44,29 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtns = document.querySelectorAll(".btn-toggle-pw");
+    toggleBtns.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector("i");
+            if (input) {
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
+                } else {
+                    input.type = "password";
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock scripts %}

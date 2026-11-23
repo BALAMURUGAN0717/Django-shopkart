@@ -1,6 +1,17 @@
-{% for msg in messages %}
-<div class="alert alert-info alert-dismissible fade show" role="alert">
-  {{msg}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
+{% if messages %}
+  {% for msg in messages %}
+    <div class="alert alert-{% if msg.tags == 'error' %}danger{% elif msg.tags %}{{ msg.tags }}{% else %}info{% endif %} alert-dismissible fade show shadow-sm d-flex align-items-center mb-3" role="alert">
+      {% if msg.tags == 'error' %}
+        <i class="fa fa-exclamation-circle me-2 fs-5"></i>
+      {% elif msg.tags == 'success' %}
+        <i class="fa fa-check-circle me-2 fs-5"></i>
+      {% elif msg.tags == 'warning' %}
+        <i class="fa fa-exclamation-triangle me-2 fs-5"></i>
+      {% else %}
+        <i class="fa fa-info-circle me-2 fs-5"></i>
+      {% endif %}
+      <div class="flex-grow-1">{{ msg }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% endif %}
