@@ -3,50 +3,50 @@
 Registration | ShopKart
 {% endblock title %}
 {% block content %}
-  <div class="container py-4 my-2" style="min-height:500px;">
-    <div class="row justify-content-center">
-      <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0 p-3 p-md-4 my-3 auth-card">
-          <div class="card-body">
-            <h4 class="mb-3 text-center section-title">New User Registration</h4>
-            <hr style="border-color:#b8bfc2;">
-            {% include 'shop/inc/message.html' %}
+<div class="container py-4 my-2" style="min-height:500px;">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+      <div class="card shadow-sm border-0 p-3 p-md-4 my-3 auth-card">
+        <div class="card-body">
+          <h4 class="mb-3 text-center section-title">New User Registration</h4>
+          <hr style="border-color:#b8bfc2;">
+          {% include 'shop/inc/message.html' %}
 
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger py-2 mb-3">
-                {% for error in form.non_field_errors %}
-                  <div class="small"><i class="fa fa-exclamation-triangle me-1"></i>{{ error }}</div>
-                {% endfor %}
-              </div>
-            {% endif %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2 mb-3">
+            {% for error in form.non_field_errors %}
+            <div class="small"><i class="fa fa-exclamation-triangle me-1"></i>{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
 
-            <form method="post" action="">
-              {% csrf_token %}
-              <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}" class="form-label fw-bold small">User Name</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fa fa-user"></i></span>
-                  {{ form.username }}
-                </div>
-                {% if form.username.errors %}
-                  {% for error in form.username.errors %}
-                    <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+          <form method="post" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="{{ form.username.id_for_label }}" class="form-label fw-bold small">User Name</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                {{ form.username }}
               </div>
+              {% if form.username.errors %}
+              {% for error in form.username.errors %}
+              <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+              {% endfor %}
+              {% endif %}
+            </div>
 
-              <div class="mb-3">
-                <label for="{{ form.email.id_for_label }}" class="form-label fw-bold small">User Email</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fa fa-envelope"></i></span>
-                  {{ form.email }}
-                </div>
-                {% if form.email.errors %}
-                  {% for error in form.email.errors %}
-                    <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+            <div class="mb-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label fw-bold small">User Email</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                {{ form.email }}
               </div>
+              {% if form.email.errors %}
+              {% for error in form.email.errors %}
+              <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+              {% endfor %}
+              {% endif %}
+            </div>
 
               <div class="mb-3">
                 <label for="reg_password1" class="form-label fw-bold small">Password</label>
@@ -67,56 +67,57 @@ Registration | ShopKart
                 {% endif %}
               </div>
 
-              <div class="mb-4">
-                <label for="reg_password2" class="form-label fw-bold small">Confirm Password</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fa fa-shield"></i></span>
-                  {{ form.password2 }}
-                  <button class="btn btn-outline-secondary btn-toggle-pw" type="button" data-target="reg_password2" title="Show or hide password">
-                    <i class="fa fa-eye"></i>
-                  </button>
-                </div>
-                {% if form.password2.errors %}
-                  {% for error in form.password2.errors %}
-                    <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
-                  {% endfor %}
-                {% endif %}
+            <div class="mb-4">
+              <label for="reg_password2" class="form-label fw-bold small">Confirm Password</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-shield"></i></span>
+                {{ form.password2 }}
+                <button class="btn btn-outline-secondary btn-toggle-pw" type="button" data-target="reg_password2"
+                  title="Show or hide password">
+                  <i class="fa fa-eye"></i>
+                </button>
               </div>
+              {% if form.password2.errors %}
+              {% for error in form.password2.errors %}
+              <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+              {% endfor %}
+              {% endif %}
+            </div>
 
-              <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Register</button>
-            </form>
-            <p class="text-center mt-3 mb-0 text-muted small">
-              Already have an account? <a href="{% url 'login' %}" class="fw-bold text-primary">Login Now</a>
-            </p>
-          </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Register</button>
+          </form>
+          <p class="text-center mt-3 mb-0 text-muted small">
+            Already have an account? <a href="{% url 'login' %}" class="fw-bold text-primary">Login Now</a>
+          </p>
         </div>
       </div>
     </div>
   </div>
 </div>
+</div>
 {% endblock content %}
 {% block scripts %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     const toggleBtns = document.querySelectorAll(".btn-toggle-pw");
     toggleBtns.forEach(btn => {
-        btn.addEventListener("click", function () {
-            const targetId = this.getAttribute("data-target");
-            const input = document.getElementById(targetId);
-            const icon = this.querySelector("i");
-            if (input) {
-                if (input.type === "password") {
-                    input.type = "text";
-                    icon.classList.remove("fa-eye");
-                    icon.classList.add("fa-eye-slash");
-                } else {
-                    input.type = "password";
-                    icon.classList.remove("fa-eye-slash");
-                    icon.classList.add("fa-eye");
-                }
-            }
-        });
+      btn.addEventListener("click", function () {
+        const targetId = this.getAttribute("data-target");
+        const input = document.getElementById(targetId);
+        const icon = this.querySelector("i");
+        if (input) {
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        }
+      });
     });
-});
+  });
 </script>
 {% endblock scripts %}
