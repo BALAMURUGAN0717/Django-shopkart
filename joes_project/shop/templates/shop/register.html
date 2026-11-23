@@ -11,35 +11,44 @@
             <h4 class="mb-3 text-center section-title">New User Registration</h4>
             <hr style="border-color:#b8bfc2;">
             {% include 'shop/inc/message.html' %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger py-2 small mb-3">
+                {% for error in form.non_field_errors %}
+                  <div><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
             <form method="post" action="">
               {% csrf_token %}
               <div class="mb-3">
                 <label class="form-label fw-bold small">User Name</label>
                 {{form.username}}
-                {% if form.errors.username %}
-                  <div class="text-danger small mt-1">{{ form.errors.username }}</div>
-                {% endif %}
+                {% for error in form.username.errors %}
+                  <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
               </div>
               <div class="mb-3">
                 <label class="form-label fw-bold small">User Email</label>
                 {{form.email}}
-                {% if form.errors.email %}
-                  <div class="text-danger small mt-1">{{ form.errors.email }}</div>
-                {% endif %}
+                {% for error in form.email.errors %}
+                  <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
               </div>
               <div class="mb-3">
                 <label class="form-label fw-bold small">Password</label>
                 {{form.password1}}
-                {% if form.errors.password1 %}
-                  <div class="text-danger small mt-1">{{ form.errors.password1 }}</div>
-                {% endif %}
+                {% for error in form.password1.errors %}
+                  <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
               </div>
               <div class="mb-4">
                 <label class="form-label fw-bold small">Confirm Password</label>
                 {{form.password2}}
-                {% if form.errors.password2 %}
-                  <div class="text-danger small mt-1">{{ form.errors.password2 }}</div>
-                {% endif %}
+                {% for error in form.password2.errors %}
+                  <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
               </div>
               <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Register</button>
             </form>
