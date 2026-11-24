@@ -115,20 +115,23 @@ else:
         for candidate in [
             BASE_DIR / 'db.sqlite3',
             BASE_DIR / 'joes_project' / 'db.sqlite3',
+            BASE_DIR.parent / 'db.sqlite3',
+            BASE_DIR.parent / 'joes_project' / 'db.sqlite3',
             Path(__file__).resolve().parent.parent / 'db.sqlite3',
+            Path(__file__).resolve().parent.parent.parent / 'db.sqlite3',
             Path(__file__).resolve().parent.parent.parent / 'joes_project' / 'db.sqlite3',
         ]:
-            if os.path.exists(candidate):
+            if os.path.exists(candidate) and os.path.getsize(candidate) > 0:
                 orig_db = candidate
                 break
 
-        if orig_db and not os.path.exists(tmp_db):
+        if orig_db and (not os.path.exists(tmp_db) or os.path.getsize(tmp_db) == 0):
             try:
                 shutil.copy2(orig_db, tmp_db)
             except Exception:
                 pass
 
-        db_path = tmp_db if os.path.exists(tmp_db) else (orig_db or (BASE_DIR / 'db.sqlite3'))
+        db_path = tmp_db if (os.path.exists(tmp_db) and os.path.getsize(tmp_db) > 0) else (orig_db or (BASE_DIR / 'db.sqlite3'))
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',

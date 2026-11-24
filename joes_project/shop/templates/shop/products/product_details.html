@@ -18,9 +18,15 @@
               <a href="{% url 'home' %}">Home</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="{% url 'collections' products.category.name %}">
-                Collections
-              </a>
+              {% if products.category %}
+                <a href="{% url 'collections' products.category.name %}">
+                  Collections
+                </a>
+              {% else %}
+                <a href="{% url 'collections' %}">
+                  Collections
+                </a>
+              {% endif %}
             </li>
             <li class="breadcrumb-item active" aria-current="page">
               {{products}}
@@ -36,9 +42,15 @@
           {% if products.trending %}
             <div class="hot">Hot</div>
           {% endif %}
-          <img src="{{products.product_image.url}}"
-               class="img-fluid rounded product-detail-img"
-               alt="{{products}}">
+          {% if products.product_image %}
+            <img src="{{products.product_image.url}}"
+                 class="img-fluid rounded product-detail-img"
+                 alt="{{products}}">
+          {% else %}
+            <img src="/static/images/no-image.png"
+                 class="img-fluid rounded product-detail-img"
+                 alt="{{products}}">
+          {% endif %}
         </div>
       </div>
 

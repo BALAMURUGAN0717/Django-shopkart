@@ -32,10 +32,17 @@ Favourite | ShopKart
                                     {% for item in fav %}
                                     <tr class="text-center">
                                         <td>
-                                            <img src="{{ item.product.product_image.url }}"
-                                                 class="img-thumbnail rounded"
-                                                 style="width: 65px; height: 65px; object-fit: cover;"
-                                                 alt="{{ item.product.name }}">
+                                            {% if item.product.product_image %}
+                                                <img src="{{ item.product.product_image.url }}"
+                                                     class="img-thumbnail rounded"
+                                                     style="width: 65px; height: 65px; object-fit: cover;"
+                                                     alt="{{ item.product.name }}">
+                                            {% else %}
+                                                <img src="/static/images/no-image.png"
+                                                     class="img-thumbnail rounded"
+                                                     style="width: 65px; height: 65px; object-fit: cover;"
+                                                     alt="{{ item.product.name }}">
+                                            {% endif %}
                                         </td>
                                         <td class="text-start">
                                             <a href="{% url 'product_details' item.product.category.name item.product.name %}" class="fw-bold text-decoration-none text-dark">

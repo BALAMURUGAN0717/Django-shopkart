@@ -34,10 +34,17 @@ Cart | ShopKart
                                     {% for item in cart %}
                                     <tr class="text-center">
                                         <td>
-                                            <img src="{{ item.product.product_image.url }}"
-                                                 class="img-thumbnail rounded"
-                                                 style="width: 65px; height: 65px; object-fit: cover;"
-                                                 alt="{{ item.product.name }}">
+                                            {% if item.product.product_image %}
+                                                <img src="{{ item.product.product_image.url }}"
+                                                     class="img-thumbnail rounded"
+                                                     style="width: 65px; height: 65px; object-fit: cover;"
+                                                     alt="{{ item.product.name }}">
+                                            {% else %}
+                                                <img src="/static/images/no-image.png"
+                                                     class="img-thumbnail rounded"
+                                                     style="width: 65px; height: 65px; object-fit: cover;"
+                                                     alt="{{ item.product.name }}">
+                                            {% endif %}
                                         </td>
                                         <td class="text-start">
                                             <a href="{% url 'product_details' item.product.category.name item.product.name %}" class="fw-bold text-decoration-none text-dark">
@@ -85,9 +92,12 @@ Cart | ShopKart
                                         </td>
                                         <th id="net" class="text-primary text-center text-nowrap fs-5">0</th>
                                         <td class="text-center text-nowrap">
-                                            <button class="btn btn-primary btn-sm px-3 py-2 fw-bold">
-                                                <i class="fa fa-check-circle me-1"></i> Check Out
-                                            </button>
+                                            <form action="{% url 'checkout' %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-primary btn-sm px-3 py-2 fw-bold" onclick="return confirm('Confirm order placement?')">
+                                                    <i class="fa fa-check-circle me-1"></i> Check Out
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     {% endif %}

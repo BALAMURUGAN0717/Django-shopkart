@@ -1,9 +1,12 @@
 import json
+import urllib.parse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.utils.text import slugify
 
 from shop.form import CustomUserForm
 from .models import Cart, Catagory, Favourite, Product
@@ -122,6 +125,22 @@ def add_to_cart(request):
     return JsonResponse({'status': 'Invalid Access'}, status=200)
 
 
+def checkout(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, "Please login to proceed to checkout.")
+        return redirect("/login/?next=/cart/")
+
+    cart_items = Cart.objects.filter(user=request.user)
+    if not cart_items.exists():
+        messages.warning(request, "Your cart is empty. Add products to checkout.")
+        return redirect("/collections/")
+
+    total = sum(item.total_cost for item in cart_items)
+    cart_items.delete()
+    messages.success(request, f"Order placed successfully! Total amount: Rs. {int(total)}. Thank you for shopping with ShopKart!")
+    return redirect("/cart/")
+
+
 # ================= AUTHENTICATION =================
 
 def login_page(request):
@@ -222,27 +241,140 @@ def register(request):
     return render(request, "shop/register.html", {'form': form})
 
 
-# ================= COLLECTIONS =================
+# ================= COLLECTIONS & PRODUCTS =================
+
+def _find_category(raw_name):
+    """Robust category lookup supporting URL-encoded, slugified, or numeric ID forms."""
+    if not raw_name:
+        return None
+    raw = str(raw_name).strip()
+    unquoted = urllib.parse.unquote(raw).strip()
+    plus_unquoted = urllib.parse.unquote_plus(raw).strip()
+
+    if raw.isdigit():
+        cat = Catagory.objects.filter(id=int(raw)).first()
+        if cat:
+            return cat
+
+    for cand in [unquoted, plus_unquoted, raw]:
+        if cand:
+            cat = Catagory.objects.filter(name__iexact=cand).first()
+            if cat:
+                return cat
+
+    target_slugs = {slugify(unquoted), slugify(plus_unquoted), slugify(raw)}
+    target_slugs.discard("")
+    for cat in Catagory.objects.all():
+        if slugify(cat.name) in target_slugs:
+            return cat
+
+    for cand in [unquoted, plus_unquoted, raw]:
+        if cand and len(cand) >= 3:
+            cat = Catagory.objects.filter(name__icontains=cand).first()
+            if cat:
+                return cat
+
+    return None
+
+
+def _find_product(raw_pname, raw_cname=None):
+    """Robust product lookup supporting IDs, decoded names, slugs, and fuzzy matching."""
+    if not raw_pname:
+        return None
+    raw_p = str(raw_pname).strip()
+    unquoted_p = urllib.parse.unquote(raw_p).strip()
+    plus_p = urllib.parse.unquote_plus(raw_p).strip()
+
+    # 1. Check numeric ID
+    if raw_p.isdigit():
+        prod = Product.objects.filter(id=int(raw_p)).first()
+        if prod:
+            return prod
+    if unquoted_p.isdigit():
+        prod = Product.objects.filter(id=int(unquoted_p)).first()
+        if prod:
+            return prod
+
+    # 2. Case-insensitive exact match
+    for cand in [unquoted_p, plus_p, raw_p]:
+        if cand:
+            prod = Product.objects.filter(name__iexact=cand).first()
+            if prod:
+                return prod
+
+    # 3. Slugified match
+    target_slugs = {slugify(unquoted_p), slugify(plus_p), slugify(raw_p)}
+    target_slugs.discard("")
+    for p in Product.objects.all():
+        if slugify(p.name) in target_slugs:
+            return p
+
+    # 4. Replace hyphens with spaces or spaces with hyphens
+    for cand in [unquoted_p, plus_p, raw_p]:
+        if '-' in cand:
+            spaced = cand.replace('-', ' ')
+            prod = Product.objects.filter(name__iexact=spaced).first()
+            if prod:
+                return prod
+        if ' ' in cand:
+            hyphened = cand.replace(' ', '-')
+            prod = Product.objects.filter(name__iexact=hyphened).first()
+            if prod:
+                return prod
+
+    # 5. Partial / contains match
+    for cand in [unquoted_p, plus_p, raw_p]:
+        if cand and len(cand) >= 3:
+            prod = Product.objects.filter(name__icontains=cand).first()
+            if prod:
+                return prod
+
+    # 6. Scoped category match if category name provided
+    if raw_cname:
+        category = _find_category(raw_cname)
+        if category:
+            for cand in [unquoted_p, plus_p, raw_p]:
+                if cand:
+                    prod = Product.objects.filter(category=category, name__icontains=cand).first()
+                    if prod:
+                        return prod
+
+    return None
+
 
 def collections(request):
-    q = request.GET.get('q')
+    q = request.GET.get('q', '').strip()
     if q:
-        prod = Product.objects.filter(name__icontains=q)
-        return render(request, 'shop/products/index.html', {'products': prod})
+        prod = Product.objects.filter(
+            Q(name__icontains=q) |
+            Q(vendor__icontains=q) |
+            Q(description__icontains=q) |
+            Q(category__name__icontains=q)
+        ).distinct()
+        return render(
+            request,
+            'shop/products/index.html',
+            {
+                'products': prod,
+                'category_name': f'Search: "{q}"',
+                'query': q,
+            }
+        )
 
     category = Catagory.objects.filter(status=0)
     return render(request, "shop/collections.html", {"catagory": category})
 
 
 def collectionsview(request, name):
-    if Catagory.objects.filter(name=name, status=0).exists():
-        products = Product.objects.filter(category__name=name)
+    category = _find_category(name)
+    if category:
+        products = Product.objects.filter(category=category)
         return render(
             request,
             "shop/products/index.html",
             {
                 "products": products,
-                "category_name": name
+                "category_name": category.name,
             }
         )
     else:
@@ -251,17 +383,34 @@ def collectionsview(request, name):
 
 
 def product_details(request, cname, pname):
-    if Catagory.objects.filter(name=cname, status=0).exists():
-        product = Product.objects.filter(name=pname, status=0).first()
-        if product:
-            return render(
-                request,
-                "shop/products/product_details.html",
-                {"products": product}
-            )
-        else:
-            messages.error(request, "No Such Product Found")
-            return redirect('collections')
-    else:
+    product = _find_product(pname, cname)
+    if product:
+        return render(
+            request,
+            "shop/products/product_details.html",
+            {"products": product}
+        )
+
+    # If product not found, check if category exists to provide clear feedback
+    category = _find_category(cname)
+    if not category and cname:
         messages.error(request, "No Such Category Found")
-        return redirect('collections')
+    else:
+        messages.error(request, "No Such Product Found")
+    return redirect('collections')
+
+
+def product_details_by_id(request, pid):
+    product = Product.objects.filter(id=pid).first()
+    if product:
+        return render(
+            request,
+            "shop/products/product_details.html",
+            {"products": product}
+        )
+    messages.error(request, "No Such Product Found")
+    return redirect('collections')
+
+
+def product_details_by_name(request, pname):
+    return product_details(request, cname="", pname=pname)
