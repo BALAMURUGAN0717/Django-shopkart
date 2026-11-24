@@ -56,6 +56,7 @@ except ImportError:
 
 MIDDLEWARE.extend([
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'shop.middleware.ServerlessSessionSyncMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -87,32 +88,80 @@ WSGI_APPLICATION = 'joes_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-IS_VERCEL = os.environ.get('VERCEL') == '1'
+DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL') or os.environ.get('POSTGRES_URL_NON_POOLING')
 
-if IS_VERCEL:
-    import shutil
-    tmp_db = '/tmp/db.sqlite3'
-    orig_db = BASE_DIR / 'db.sqlite3'
-    if os.path.exists(orig_db) and not os.path.exists(tmp_db):
-        try:
-            shutil.copy2(orig_db, tmp_db)
-        except Exception:
-            pass
-
-    db_path = tmp_db if os.path.exists(tmp_db) else orig_db
+if DATABASE_URL:
+    import urllib.parse
+    parsed = urllib.parse.urlparse(DATABASE_URL)
+    engine = 'django.db.backends.postgresql'
+    if 'mysql' in parsed.scheme:
+        engine = 'django.db.backends.mysql'
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': db_path,
+            'ENGINE': engine,
+            'NAME': parsed.path.lstrip('/'),
+            'USER': parsed.username or '',
+            'PASSWORD': parsed.password or '',
+            'HOST': parsed.hostname or '',
+            'PORT': str(parsed.port or 5432),
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    IS_VERCEL = os.environ.get('VERCEL') == '1'
+    if IS_VERCEL:
+        import shutil
+        tmp_db = '/tmp/db.sqlite3'
+        orig_db = None
+        for candidate in [
+            BASE_DIR / 'db.sqlite3',
+            BASE_DIR / 'joes_project' / 'db.sqlite3',
+            Path(__file__).resolve().parent.parent / 'db.sqlite3',
+            Path(__file__).resolve().parent.parent.parent / 'joes_project' / 'db.sqlite3',
+        ]:
+            if os.path.exists(candidate):
+                orig_db = candidate
+                break
+
+        if orig_db and not os.path.exists(tmp_db):
+            try:
+                shutil.copy2(orig_db, tmp_db)
+            except Exception:
+                pass
+
+        db_path = tmp_db if os.path.exists(tmp_db) else (orig_db or (BASE_DIR / 'db.sqlite3'))
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': db_path,
+            }
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+
+# ==============================================================================
+# SESSION & AUTHENTICATION CONFIGURATION (SERVERLESS & PRODUCTION COMPLIANT)
+# ==============================================================================
+
+# Use Signed Cookie Session Engine: sessions are cryptographically signed and stored
+# in client cookies, ensuring persistent login across all serverless lambda instances.
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 86400 * 30  # 30 days
+SESSION_SAVE_EVERY_REQUEST = True
+
+# HTTPS & Reverse Proxy Settings for Vercel / Production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 
 # Password validation

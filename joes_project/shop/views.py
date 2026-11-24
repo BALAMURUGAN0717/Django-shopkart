@@ -1,6 +1,7 @@
 import json
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
@@ -137,7 +138,18 @@ def login_page(request):
             messages.error(request, "Please enter both username and password.")
             return render(request, "shop/login.html", {'username': name, 'next': next_url})
 
-        user = authenticate(request, username=name, password=pwd)
+        # Flexible lookup: case-insensitive username or email
+        user_obj = User.objects.filter(username__iexact=name).first()
+        if not user_obj and '@' in name:
+            user_obj = User.objects.filter(email__iexact=name).first()
+
+        user = None
+        if user_obj:
+            user = authenticate(request, username=user_obj.username, password=pwd)
+            if not user and pwd.strip() != pwd:
+                user = authenticate(request, username=user_obj.username, password=pwd.strip())
+        else:
+            user = authenticate(request, username=name, password=pwd)
 
         if user is not None:
             if not user.is_active:
@@ -145,6 +157,16 @@ def login_page(request):
                 return render(request, "shop/login.html", {'username': name, 'next': next_url})
 
             login(request, user)
+            # Store user metadata in signed session cookie for serverless resilience
+            request.session['_auth_user_meta'] = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'password': user.password,
+                'is_active': user.is_active,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
+            }
             messages.success(request, f"Welcome back, {user.username}!")
 
             # Safe redirect: only redirect if next_url starts with '/' and not '//'
@@ -172,12 +194,23 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            # Log the user in immediately upon registration
+            login(request, user)
+            request.session['_auth_user_meta'] = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'password': user.password,
+                'is_active': user.is_active,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
+            }
             messages.success(
                 request,
-                "Registration successful! Please login with your new account."
+                f"Registration successful! Welcome to ShopKart, {user.username}!"
             )
-            return redirect('/login/')
+            return redirect('/')
         else:
             messages.error(
                 request,
