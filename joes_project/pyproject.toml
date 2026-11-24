@@ -1,13 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "joes-project"
 version = "0.1.0"
 description = "Shopkart Django Project"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
-    "django>=4.0,<6.2",
-    "pillow",
-    "whitenoise",
+    "django>=4.2,<6.0",
+    "pillow>=9.0",
+    "whitenoise>=6.0",
 ]
 
 [tool.vercel]
 entrypoint = "joes_project.wsgi:application"
+
+[tool.vercel.scripts]
+build = "python manage.py collectstatic --noinput"
